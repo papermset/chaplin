@@ -1,0 +1,15 @@
+{"speaker_id": "speaker_01", "mode": "normal", "ground_truth": "Please open the code editor"}
+{"speaker_id": "speaker_01", "mode": "normal", "ground_truth": "I want to save this file"}
+{"speaker_id": "speaker_01", "mode": "normal", "ground_truth": "Please go back to the previous page"}
+{"speaker_id": "speaker_01", "mode": "normal", "ground_truth": "Open the Chaplin project in Codex"}
+{"speaker_id": "speaker_01", "mode": "normal", "ground_truth": "Please write a message to my team"}
+{"speaker_id": "speaker_01", "mode": "low_voice", "ground_truth": "Please open the code editor"}
+{"speaker_id": "speaker_01", "mode": "low_voice", "ground_truth": "I want to save this file"}
+{"speaker_id": "speaker_01", "mode": "low_voice", "ground_truth": "Please go back to the previous page"}
+{"speaker_id": "speaker_01", "mode": "low_voice", "ground_truth": "Open the Chaplin project in Codex"}
+{"speaker_id": "speaker_01", "mode": "low_voice", "ground_truth": "Please write a message to my team"}
+{"speaker_id": "speaker_01", "mode": "silent", "ground_truth": "Please open the code editor"}
+{"speaker_id": "speaker_01", "mode": "silent", "ground_truth": "I want to save this file"}
+{"speaker_id": "speaker_01", "mode": "silent", "ground_truth": "Please go back to the previous page"}
+{"speaker_id": "speaker_01", "mode": "silent", "ground_truth": "Open the Chaplin project in Codex"}
+{"speaker_id": "speaker_01", "mode": "silent", "ground_truth": "Please write a message to my team"}

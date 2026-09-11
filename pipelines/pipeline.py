@@ -14,7 +14,7 @@ from pipelines.data.data_module import AVSRDataLoader
 
 
 class InferencePipeline(torch.nn.Module):
-    def __init__(self, config_filename, detector="retinaface", face_track=False, device="cuda:0"):
+    def __init__(self, config_filename, detector="retinaface", face_track=False, device="cuda:0", input_v_fps=None):
         super(InferencePipeline, self).__init__()
         assert os.path.isfile(config_filename), f"config_filename: {config_filename} does not exist."
 
@@ -26,8 +26,11 @@ class InferencePipeline(torch.nn.Module):
 
         self.modality = modality
         # data configuration
-        input_v_fps = config.getfloat("input", "v_fps")
+        input_v_fps = input_v_fps if input_v_fps is not None else config.getfloat("input", "v_fps")
         model_v_fps = config.getfloat("model", "v_fps")
+        if input_v_fps <= 0 or model_v_fps <= 0:
+            raise ValueError("Video frame rates must be positive")
+        self.input_v_fps, self.model_v_fps = input_v_fps, model_v_fps
 
         # model configuration
         model_path = config.get("model","model_path")
@@ -40,6 +43,8 @@ class InferencePipeline(torch.nn.Module):
         ctc_weight = config.getfloat("decode", "ctc_weight")
         lm_weight = config.getfloat("decode", "lm_weight")
         beam_size = config.getint("decode", "beam_size")
+        self.maxlenratio = config.getfloat("decode", "maxlenratio", fallback=0.0)
+        self.minlenratio = config.getfloat("decode", "minlenratio", fallback=0.0)
 
         self.dataloader = AVSRDataLoader(modality, speed_rate=input_v_fps/model_v_fps, detector=detector)
         self.model = AVSR(modality, model_path, model_conf, rnnlm, rnnlm_conf, penalty, ctc_weight, lm_weight, beam_size, device)
@@ -66,8 +71,11 @@ class InferencePipeline(torch.nn.Module):
 
 
     def forward(self, data_filename, landmarks_filename=None):
+        return self.decode(data_filename, landmarks_filename, nbest=1).best_text
+
+    def decode(self, data_filename, landmarks_filename=None, nbest=10, capture_logits=False):
         assert os.path.isfile(data_filename), f"data_filename: {data_filename} does not exist."
         landmarks = self.process_landmarks(data_filename, landmarks_filename)
         data = self.dataloader.load_data(data_filename, landmarks)
-        transcript = self.model.infer(data)
-        return transcript
+        return self.model.decode(data, nbest=nbest, capture_logits=capture_logits,
+                                 maxlenratio=self.maxlenratio, minlenratio=self.minlenratio)

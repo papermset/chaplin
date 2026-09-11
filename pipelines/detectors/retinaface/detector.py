@@ -5,7 +5,7 @@
 # Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
 import warnings
-import torchvision
+from pipelines.data.video_io import read_video_rgb
 from ibug.face_detection import RetinaFacePredictor
 from ibug.face_alignment import FANPredictor
 warnings.filterwarnings("ignore")
@@ -21,7 +21,7 @@ class LandmarksDetector:
         self.landmark_detector = FANPredictor(device=device, model=None)
 
     def __call__(self, filename):
-        video_frames = torchvision.io.read_video(filename, pts_unit='sec')[0].numpy()
+        video_frames = read_video_rgb(filename)
         landmarks = []
         for frame in video_frames:
             detected_faces = self.face_detector(frame, rgb=False)

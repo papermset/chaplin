@@ -20,3 +20,24 @@ detector: retinaface
 dst_filename: null
 gpu_idx: 0
 output_subdir: null
+nbest: 10
+capture_logits: false
+audit_dir: data/decoding
+context_file: null
+context:
+  previous_text: ""
+  current_app: ""
+  custom_vocabulary: []
+  command_history: []
+reranker:
+  enabled: true
+  model: qwen3:4b
+  timeout_s: 60
+benchmark:
+  enabled: false
+  session_dir: data/sessions/default
+  manifest: null
+  speaker_id: unknown
+  mode: silent
+  ground_truth: null
+  type_output: false

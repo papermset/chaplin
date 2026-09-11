@@ -8,15 +8,13 @@ import os
 import json
 import torch
 import argparse
-import numpy as np
+from decoding.hypotheses import from_beam
 
 from espnet.asr.asr_utils import torch_load
 from espnet.asr.asr_utils import get_model_conf
-from espnet.asr.asr_utils import add_results_to_json
 from espnet.nets.batch_beam_search import BatchBeamSearch
 from espnet.nets.lm_interface import dynamic_import_lm
 from espnet.nets.scorers.length_bonus import LengthBonus
-from espnet.nets.pytorch_backend.e2e_asr_transformer import E2E
 
 
 class AVSR(torch.nn.Module):
@@ -51,16 +49,29 @@ class AVSR(torch.nn.Module):
         self.beam_search.to(device=self.device).eval()
         
     def infer(self, data):
+        """Keep the original string API for existing callers."""
+        return self.decode(data, nbest=1).best_text
+
+    def decode(self, data, nbest=10, capture_logits=False, maxlenratio=0.0, minlenratio=0.0):
+        if type(nbest) is not int or not 1 <= nbest <= self.beam_search.beam_size:
+            raise ValueError("nbest must be between 1 and beam_size")
         with torch.no_grad():
             if isinstance(data, tuple):
                 enc_feats = self.model.encode(data[0].to(self.device), data[1].to(self.device))
             else:
                 enc_feats = self.model.encode(data.to(self.device))
-            nbest_hyps = self.beam_search(enc_feats)
-            nbest_hyps = [h.asdict() for h in nbest_hyps[: min(len(nbest_hyps), 1)]]
-            transcription = add_results_to_json(nbest_hyps, self.token_list)
-            transcription = transcription.replace("▁", " ").strip()
-        return transcription.replace("<eos>", "")
+            nbest_hyps = self.beam_search(enc_feats, maxlenratio=maxlenratio, minlenratio=minlenratio)
+            result = from_beam(nbest_hyps, self.token_list, nbest, self.beam_search.weights)
+            ctc = getattr(self.model, "ctc", None)
+            if capture_logits and ctc is not None and hasattr(ctc, "ctc_lo"):
+                # Raw frame-by-vocabulary activations, BEFORE log_softmax.
+                # Reuse the encoder output; do not run another encoder pass.
+                result.logits = ctc.ctc_lo(enc_feats).detach().float().cpu().numpy()
+                result.logits_kind = "ctc_pre_softmax"
+            else:
+                result.logits_unavailable_reason = (
+                    "capture_disabled" if not capture_logits else "model_has_no_ctc_projection")
+        return result
 
 
 def get_beam_search_decoder(model, token_list, rnnlm=None, rnnlm_conf=None, penalty=0, ctc_weight=0.1, lm_weight=0., beam_size=40):

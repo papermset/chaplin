@@ -1,0 +1,3 @@
+{"speaker_id":"speaker_01","mode":"normal","ground_truth":"I want to build a silent speech interface"}
+{"speaker_id":"speaker_01","mode":"low_voice","ground_truth":"I want to build a silent speech interface"}
+{"speaker_id":"speaker_01","mode":"silent","ground_truth":"I want to build a silent speech interface"}

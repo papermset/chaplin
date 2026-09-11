@@ -31,3 +31,10 @@ build/
 *.egg-info/
 benchmarks/**
 *.mp4
+# Local recordings, labels, model scores and conversation context.
+data/
+.pytest_cache/
+.ruff_cache/
+# Local machine logs; public video provenance remains versioned.
+validation/*.log
+validation/tests.txt

@@ -6,7 +6,7 @@
 
 import torch
 import torchaudio
-import torchvision
+from pipelines.data.video_io import read_video_rgb
 from .transforms import AudioTransform, VideoTransform
 
 
@@ -58,7 +58,7 @@ class AVSRDataLoader:
 
 
     def load_video(self, data_filename):
-        return torchvision.io.read_video(data_filename, pts_unit='sec')[0].numpy()
+        return read_video_rgb(data_filename)
 
 
     def audio_process(self, waveform, sample_rate, target_sample_rate=16000):

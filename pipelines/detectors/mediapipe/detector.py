@@ -4,11 +4,8 @@
 # Copyright 2021 Imperial College London (Pingchuan Ma)
 # Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
-import warnings
-import torchvision
+from pipelines.data.video_io import read_video_rgb
 import mediapipe as mp
-import os
-import cv2
 import numpy as np
 
 
@@ -19,11 +16,11 @@ class LandmarksDetector:
         self.full_range_detector = self.mp_face_detection.FaceDetection(min_detection_confidence=0.5, model_selection=1)
 
     def __call__(self, filename):
-        video_frames = torchvision.io.read_video(filename, pts_unit='sec')[0].numpy()
+        video_frames = read_video_rgb(filename)
         landmarks = self.detect(video_frames, self.full_range_detector)
         if all(element is None for element in landmarks):
             landmarks = self.detect(video_frames, self.short_range_detector)
-            assert any(l is not None for l in landmarks), "Cannot detect any frames in the video"
+            assert any(point is not None for point in landmarks), "Cannot detect any frames in the video"
         return landmarks
 
     def detect(self, video_frames, detector):

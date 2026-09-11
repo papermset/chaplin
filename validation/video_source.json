@@ -1,0 +1,16 @@
+{
+  "url": "https://github.com/spazewalker/AudioVisualSpeechRecog_OpenCV/blob/master/video.mp4",
+  "note": "Public speech example; no human reference transcript. Resized/reencoded to emulate current Chaplin capture settings; not a live webcam test.",
+  "clips": [
+    {
+      "file": "clip_3s.mp4",
+      "start_s": 4,
+      "duration_s": 3
+    },
+    {
+      "file": "clip_6s.mp4",
+      "start_s": 12,
+      "duration_s": 6
+    }
+  ]
+}
